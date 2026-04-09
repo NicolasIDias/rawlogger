@@ -27,35 +27,8 @@ typedef struct {
     void (*log_func)(log_t *event, const char *format, va_list args);
 } log_sink_t;
 
-static log_sink_t sinks[MAX_SINKS];
-static int sink_counter = 0;
-
-static inline void log_add_sink(log_sink_t sink)
-{
-    if(sink_counter < MAX_SINKS) {
-        sinks[sink_counter++] = sink;
-    }
-}
-
-static inline void internal_log(const char *file, int line, const char *format, log_level level, ...)
-{
-    log_t event = {level, file, line};
-
-    va_list args;
-
-    va_start(args, level); 
-
-    for (int i = 0; i < sink_counter; i++) {
-        va_list tmp_args;
-        va_copy(tmp_args, args);
-        
-        sinks[i].log_func(&event, format, tmp_args); 
-        
-        va_end(tmp_args);
-    }
-
-    va_end(args);
-}
+void log_add_sink(log_sink_t sink);
+void internal_log(const char *file, int line, const char *format, log_level level, ...);
 
 #define LOG_TRACE(format, ...) internal_log(__FILE__, __LINE__, format, LOG_TRACE, ##__VA_ARGS__)
 #define LOG_DEBUG(format, ...) internal_log(__FILE__, __LINE__, format, LOG_DEBUG, ##__VA_ARGS__)
