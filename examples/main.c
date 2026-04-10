@@ -11,6 +11,7 @@ int main()
     LOG_INFO("Hello, %s!", "World");
     LOG_WARN("Value = %d", 42);
     LOG_ERROR("Fail %s", "sensor");
+    LOG_FATAL("Fatal %s", "error");
 
     return 0;
 }

@@ -8,22 +8,22 @@ const char *level_to_string(log_level lvl)
     switch (lvl)
     {
     case LOG_TRACE:
-        return "TRACE";
-
-    case LOG_INFO:
-        return "INFO";
-
-    case LOG_WARN:
-        return "WARN";
+        return "\033[1;34mTRACE\033[0m";  /* blue */
 
     case LOG_DEBUG:
-        return "DEBUG";
+        return "\033[1;36mDEBUG\033[0m";  /* cyan */
+
+    case LOG_INFO:
+        return "\033[1;32mINFO\033[0m";   /* green */
+
+    case LOG_WARN:
+        return "\033[1;33mWARN\033[0m";   /* yellow */
 
     case LOG_ERROR:
-        return "ERROR";
+        return "\033[1;31mERROR\033[0m";  /* red */
 
     case LOG_FATAL:
-        return "FATAL";
+        return "\033[1;41;97mFATAL\033[0m"; /* red background */
 
     default:
         return "UNKNOWN";
