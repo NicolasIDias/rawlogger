@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+/* Convert a log level enum to a human-readable string. */
 const char *level_to_string(log_level lvl)
 {
     switch (lvl)
@@ -29,15 +30,17 @@ const char *level_to_string(log_level lvl)
     }
 }
 
-void console_sink_func(log_t *event, const char* format, va_list args)
+/* Default console sink implementation. */
+void console_sink_func(log_t *event, const char *format, va_list args)
 {
     char buffer[1024];
 
-    vsnprintf(buffer, 1024, format, args);
+    vsnprintf(buffer, sizeof(buffer), format, args);
     printf("[%s] %s\n", level_to_string(event->level), buffer);
 }
 
-log_sink_t console_sink_create(void)
+/* Create a reusable console sink object. */
+log_sink_t console_sink_create()
 {
-    return (log_sink_t){ .log_func = console_sink_func };
+    return (log_sink_t){.log_func = console_sink_func};
 }
