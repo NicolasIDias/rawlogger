@@ -2,28 +2,36 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+#define BLUE "\033[1;34m"
+#define YELLOW "\033[1;33m"
+#define RED "\033[1;31m"
+#define RED_B "\033[1;41;97m"
+#define GREEN "\033[1;32m"
+#define CYAN "\033[1;36m"
+#define RESET "\033[0m"
+
 /* Convert a log level enum to a human-readable string. */
 const char *level_to_string(log_level lvl)
 {
     switch (lvl)
     {
     case LOG_TRACE:
-        return "\033[1;34mTRACE\033[0m";  /* blue */
+        return BLUE "TRACE" RESET; /* blue */
 
     case LOG_DEBUG:
-        return "\033[1;36mDEBUG\033[0m";  /* cyan */
+        return CYAN "DEBUG" RESET; /* cyan */
 
     case LOG_INFO:
-        return "\033[1;32mINFO\033[0m";   /* green */
+        return GREEN "INFO" RESET; /* green */
 
     case LOG_WARN:
-        return "\033[1;33mWARN\033[0m";   /* yellow */
+        return YELLOW "WARN" RESET; /* yellow */
 
     case LOG_ERROR:
-        return "\033[1;31mERROR\033[0m";  /* red */
+        return RED "ERROR" RESET; /* red */
 
     case LOG_FATAL:
-        return "\033[1;41;97mFATAL\033[0m"; /* red background */
+        return RED_B "FATAL" RESET; /* red background */
 
     default:
         return "UNKNOWN";
