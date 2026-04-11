@@ -54,9 +54,9 @@ log_sink_t console_sink_create()
 }
 
 /* File sink implementation that writes logs to app.log. */
-void file_sink_func(log_t *event, const char *format, va_list args)
+void file_sink_func(char *filepath, log_t *event, const char *format, va_list args)
 {
-    FILE *file = fopen("app.log", "a");
+    FILE *file = fopen(filepath, "a");
 
     if (file == NULL)
     {

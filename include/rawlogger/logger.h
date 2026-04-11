@@ -44,6 +44,8 @@ void log_add_sink(log_sink_t sink);
  * This function forwards the formatted message to each registered sink.
  */
 /* Convenience macros that capture source file and line number. */
+
+void set_log_level(log_level level);
 void internal_log(const char *file, int line, const char *format, log_level level, ...);
 
 #define LOG_TRACE(format, ...) internal_log(__FILE__, __LINE__, format, LOG_TRACE, ##__VA_ARGS__)
