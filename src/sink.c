@@ -78,7 +78,7 @@ log_sink_t file_sink_create()
     return (log_sink_t){.log_func = file_sink_func}; 
 }
 
-void clear_file_sink()
+void clear_log_file()
 {
     FILE *file = fopen("app.log", "w");
     if(file == NULL)

@@ -13,4 +13,4 @@ void file_sink_func(log_t *event, const char *format, va_list args);
 log_sink_t console_sink_create();
 log_sink_t file_sink_create();
 
-void clear_file_sink();
+void clear_log_file();

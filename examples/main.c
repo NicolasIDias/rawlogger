@@ -16,7 +16,7 @@ int main()
     //for(int i=0;i<1000000000;i++);
 
     /* Cleaning the log sink file */
-    clear_file_sink();
+    clear_log_file();
 
     return 0;
 }
