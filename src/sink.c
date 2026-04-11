@@ -52,3 +52,39 @@ log_sink_t console_sink_create()
 {
     return (log_sink_t){.log_func = console_sink_func};
 }
+
+/* File sink implementation that writes logs to app.log. */
+void file_sink_func(log_t *event, const char *format, va_list args)
+{
+    FILE *file = fopen("app.log", "a");
+
+    if (file == NULL)
+    {
+        printf("Error: Could not open app.log\n");
+        return;
+    }
+
+    char buffer[1024];
+    vsnprintf(buffer, sizeof(buffer), format, args);
+
+    fprintf(file, "[%s] %s\n", level_to_string(event->level), buffer);
+
+    fclose(file);
+}
+
+/* Create a file sink that writes to app.log. */
+log_sink_t file_sink_create()
+{
+    return (log_sink_t){.log_func = file_sink_func}; 
+}
+
+void clear_file_sink()
+{
+    FILE *file = fopen("app.log", "w");
+    if(file == NULL)
+    {
+        printf("Error: Could not open app.log\n");
+        return;
+    }    
+    fclose(file);
+}
