@@ -10,81 +10,108 @@
 #define CYAN "\033[1;36m"
 #define RESET "\033[0m"
 
-/* Convert a log level enum to a human-readable string. */
-const char *level_to_string(log_level lvl)
+const char *rawlog_level_to_string(rawlog_level_t lvl)
 {
     switch (lvl)
     {
-    case LOG_TRACE:
-        return BLUE "TRACE" RESET; /* blue */
+    case RAWLOG_LEVEL_TRACE: return "TRACE";
+    case RAWLOG_LEVEL_DEBUG: return "DEBUG";
+    case RAWLOG_LEVEL_INFO:  return "INFO";
+    case RAWLOG_LEVEL_WARN:  return "WARN";
+    case RAWLOG_LEVEL_ERROR: return "ERROR";
+    case RAWLOG_LEVEL_FATAL: return "FATAL";
+    default:                 return "UNKNOWN";
+    }
+}
 
-    case LOG_DEBUG:
-        return CYAN "DEBUG" RESET; /* cyan */
-
-    case LOG_INFO:
-        return GREEN "INFO" RESET; /* green */
-
-    case LOG_WARN:
-        return YELLOW "WARN" RESET; /* yellow */
-
-    case LOG_ERROR:
-        return RED "ERROR" RESET; /* red */
-
-    case LOG_FATAL:
-        return RED_B "FATAL" RESET; /* red background */
-
-    default:
-        return "UNKNOWN";
+const char *rawlog_level_to_color(rawlog_level_t lvl)
+{
+    switch (lvl)
+    {
+    case RAWLOG_LEVEL_TRACE: return BLUE;
+    case RAWLOG_LEVEL_DEBUG: return CYAN;
+    case RAWLOG_LEVEL_INFO:  return GREEN;
+    case RAWLOG_LEVEL_WARN:  return YELLOW;
+    case RAWLOG_LEVEL_ERROR: return RED;
+    case RAWLOG_LEVEL_FATAL: return RED_B;
+    default:                 return RESET;
     }
 }
 
 /* Default console sink implementation. */
-void console_sink_func(log_t *event, const char *format, va_list args)
+static void console_sink_func(const rawlog_event_t *event, void *user_data, const char *format, va_list args)
 {
-    char buffer[1024];
-
-    vsnprintf(buffer, sizeof(buffer), format, args);
-    printf("[%s] %s\n", level_to_string(event->level), buffer);
-}
-
-/* Create a reusable console sink object. */
-log_sink_t console_sink_create()
-{
-    return (log_sink_t){.log_func = console_sink_func};
-}
-
-/* File sink implementation that writes logs to app.log. */
-void file_sink_func(char *filepath, log_t *event, const char *format, va_list args)
-{
-    FILE *file = fopen(filepath, "a");
-
-    if (file == NULL)
+    char time_buf[64];
+    if (event->time_info)
     {
-        printf("Error: Could not open app.log\n");
-        return;
+        strftime(time_buf, sizeof(time_buf), "%Y-%m-%d %H:%M:%S", event->time_info);
+    }
+    else
+    {
+        time_buf[0] = '\0';
     }
 
     char buffer[1024];
     vsnprintf(buffer, sizeof(buffer), format, args);
 
-    fprintf(file, "[%s] %s\n", level_to_string(event->level), buffer);
-
-    fclose(file);
+    printf("[%s] [%s%s%s] %s:%d: %s\n", time_buf, rawlog_level_to_color(event->level), rawlog_level_to_string(event->level), RESET, event->filepath, event->line, buffer);
 }
 
-/* Create a file sink that writes to app.log. */
-log_sink_t file_sink_create()
+/* Create a reusable console sink object. */
+rawlog_sink_t rawlog_console_sink_create(void)
 {
-    return (log_sink_t){.log_func = file_sink_func}; 
+    rawlog_sink_t sink = {0};
+    sink.log_func = console_sink_func;
+    return sink;
 }
 
-void clear_log_file()
+/* File sink implementation. */
+static void file_sink_func(const rawlog_event_t *event, void *user_data, const char *format, va_list args)
 {
-    FILE *file = fopen("app.log", "w");
-    if(file == NULL)
-    {
-        printf("Error: Could not open app.log\n");
+    FILE *file = (FILE*)user_data;
+    if (file == NULL)
         return;
-    }    
-    fclose(file);
+
+    char time_buf[64];
+    if (event->time_info)
+    {
+        strftime(time_buf, sizeof(time_buf), "%Y-%m-%d %H:%M:%S", event->time_info);
+    }
+    else
+    {
+        time_buf[0] = '\0';
+    }
+
+    char buffer[1024];
+    vsnprintf(buffer, sizeof(buffer), format, args);
+
+    fprintf(file, "[%s] [%s] %s:%d: %s\n", time_buf, rawlog_level_to_string(event->level), event->filepath, event->line, buffer);
+    fflush(file);
+}
+
+static void file_sink_free(void *user_data)
+{
+    FILE *file = (FILE*)user_data;
+    if (file)
+    {
+        fclose(file);
+    }
+}
+
+/* Create a file sink. */
+rawlog_sink_t rawlog_file_sink_create(const char *filepath)
+{
+    rawlog_sink_t sink = {0};
+    FILE *file = fopen(filepath, "a");
+    if (file)
+    {
+        sink.user_data = file;
+        sink.log_func = file_sink_func;
+        sink.free_func = file_sink_free;
+    }
+    else
+    {
+        fprintf(stderr, "Error: Could not open %s\n", filepath);
+    }
+    return sink;
 }

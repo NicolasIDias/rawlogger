@@ -1,4 +1,2 @@
-*.out
+build/
 *.log
-*.o
-README.md

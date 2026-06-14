@@ -2,11 +2,11 @@
 #include <rawlogger/logger.h>
 
 /* Convert a log level enum value into a human-readable string. */
-const char *level_to_string(log_level lvl);
+const char *rawlog_level_to_string(rawlog_level_t lvl);
+const char *rawlog_level_to_color(rawlog_level_t lvl);
 
-/* Create a console and file sink that can be registered with log_add_sink(). */
-log_sink_t console_sink_create();
-log_sink_t file_sink_create();
+/* Create a console sink that can be registered with rawlog_add_sink(). */
+rawlog_sink_t rawlog_console_sink_create(void);
 
-/* Erase the log file */
-void clear_log_file();
+/* Create a file sink that can be registered with rawlog_add_sink(). */
+rawlog_sink_t rawlog_file_sink_create(const char *filepath);
